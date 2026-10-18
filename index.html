@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e5f7e2">
+  <meta name="description" content="OpenGame: descubre juegos gratuitos para navegador.">
+  <title>OpenGame — Juega a tu manera</title>
+  <link rel="icon" href="/assets/opengame.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="/" aria-label="OpenGame inicio">OG</a>
+    <form class="search" id="search-form" role="search">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+      <input id="search-input" type="search" placeholder="Buscar juegos..." aria-label="Buscar juegos">
+      <button type="submit">Buscar</button>
+    </form>
+  </header>
+
+  <main>
+    <section class="game-space" id="catalogo" aria-label="Juegos">
+      <p id="empty-message" hidden>No hay juegos añadidos todavía.</p>
+    </section>
+
+    <section class="player" id="game-player" hidden aria-live="polite">
+      <h2 id="player-title">Zona de juego</h2>
+      <div class="player-placeholder">Aquí aparecerá el juego cuando se añada su integración oficial.</div>
+    </section>
+
+    <section class="categories-section" aria-label="Explora por categoría">
+      <div class="categories" id="categories">
+        <button class="category active" type="button" data-category="Todos"><img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=75" alt=""><span>Todos</span></button>
+        <button class="category" type="button" data-category="Carreras"><img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=400&q=75" alt=""><span>Carreras</span></button>
+        <button class="category" type="button" data-category="Uñas"><img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=400&q=75" alt=""><span>Uñas</span></button>
+        <button class="category" type="button" data-category="Acción"><img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=75" alt=""><span>Acción</span></button>
+        <button class="category" type="button" data-category="Puzzles"><img src="https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?auto=format&fit=crop&w=400&q=75" alt=""><span>Puzzles</span></button>
+        <button class="category" type="button" data-category="Deportes"><img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=400&q=75" alt=""><span>Deportes</span></button>
+        <button class="category" type="button" data-category="Aventura"><img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=75" alt=""><span>Aventura</span></button>
+        <button class="category" type="button" data-category="Simuladores"><img src="https://images.unsplash.com/photo-1500530850842-5c1d2e2f1f2b?auto=format&fit=crop&w=400&q=75" alt=""><span>Simuladores</span></button>
+        <button class="category" type="button" data-category="Terror"><img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=75" alt=""><span>Terror</span></button>
+        <button class="category" type="button" data-category="Multijugador"><img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=75" alt=""><span>Multijugador</span></button>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>OpenGame · Juegos para jugar desde el navegador.</span><span>© <span id="year"></span> OpenGame</span></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
