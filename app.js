@@ -1,44 +1,20 @@
 (() => {
-  'use strict';
-  const form = document.getElementById('search-form');
-  const search = document.getElementById('search-input');
-  const toast = document.getElementById('toast');
-  const categoryButtons = [...document.querySelectorAll('[data-category]')];
-  const emptyMessage = document.getElementById('empty-message');
-  let toastTimer;
-
-  function notify(message) {
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add('show');
-    window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toast.classList.remove('show'), 2600);
-  }
-
-  if (form && search) {
-    form.addEventListener('submit', event => {
-      event.preventDefault();
-      const query = search.value.trim();
-      if (query) notify(`Todavía no hay juegos añadidos para buscar «${query}».`);
-      else notify('El catálogo de juegos estará disponible pronto.');
-    });
-  }
-
-  categoryButtons.forEach(button => {
-    button.setAttribute('aria-pressed', String(button.classList.contains('active')));
-    button.addEventListener('click', () => {
-      categoryButtons.forEach(item => {
-        const active = item === button;
-        item.classList.toggle('active', active);
-        item.setAttribute('aria-pressed', String(active));
-      });
-      notify(button.dataset.category === 'Todos'
-        ? 'Todavía no hay juegos añadidos al catálogo.'
-        : `La categoría «${button.dataset.category}» estará disponible cuando añadamos juegos.`);
-    });
-  });
-
-  if (emptyMessage) emptyMessage.hidden = false;
-  const year = document.getElementById('year');
-  if (year) year.textContent = String(new Date().getFullYear());
+ const games = (window.OPENGAME_GAMES || []).map((g,i)=>({...g, index:i, title:g.title || `Juego ${i+1}`, tags:[...(g.tags||[]),`juego ${i+1}`,`game ${i+1}`]}));
+ const home=document.getElementById('homeView'), play=document.getElementById('playView'), grid=document.getElementById('gameGrid'), search=document.getElementById('search'), clear=document.getElementById('clearSearch'), more=document.getElementById('loadMore'), empty=document.getElementById('emptyState');
+ const title=document.getElementById('gameTitle'), frame=document.getElementById('gameFrame'), wrap=document.getElementById('playerFrameWrap');
+ const colors=['#f8c8b8','#f6d77c','#b9d9ff','#cbbcf8','#9ee5c1','#ffc5dc','#b4e5e8','#f5c39a','#c8e5a3','#d8c4a8'];
+ const emojis=['🧩','🚀','🏎️','⚽','🐱','🎯','🧠','🛸','🏆','🐸','🎮','💎','🦊','🧱','🏀','🦖','🎲','🪄','🐼','🚁'];
+ const synonyms={fut:['futbol','fútbol','soccer','football','futbolito','balompie','balompié','penalty','penaltis'],fútbol:['fut','futbol','soccer','football','balompie','balompié'],futbol:['fut','fútbol','soccer','football','balompie','balompié'],soccer:['fut','fútbol','futbol','football'],football:['fut','fútbol','futbol','soccer'],voiture:['car','cars','coche','coches','carro','carros','racing','carrera'],coche:['car','cars','voiture','coches','carro','racing'],coches:['car','cars','voiture','coche','carro','racing'],car:['coche','coches','voiture','carro','cars'],carreras:['racing','race','car','coche','coches'],auto:['car','coche','carro','cars'],juegos:['juego','games','game','jouer','spielen','игры'],juego:['juegos','games','game','jouer','spielen','игры'],game:['games','juego','juegos','jouer','spielen'],games:['game','juego','juegos'],spielen:['game','games','juego'],jouer:['game','games','juego'],gry:['juego','game','games'],игры:['juego','games','game'],basket:['basketball','baloncesto','basketbol'],baloncesto:['basket','basketball'],foot:['football','soccer','futbol','fútbol']};
+ const normalize=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+ function terms(q){const base=normalize(q).split(/[^a-z0-9Ѐ-ӿ]+/).filter(Boolean),all=new Set(base);base.forEach(t=>(synonyms[t]||[]).forEach(x=>all.add(normalize(x))));return [...all]}
+ function filtered(){const q=search.value.trim();if(!q)return games;const ts=terms(q);return games.filter(g=>ts.some(t=>normalize([g.title,...g.tags].join(' ')).includes(t)));}
+ let shown=0, currentList=[]; const batch=30;
+ function card(g,pos){const b=document.createElement('button');b.className='game-card '+(pos%13===0?'featured':pos%7===0?'wide':pos%9===0?'tall':'standard');b.style.setProperty('--tile',colors[(g.index*7+pos)%colors.length]);b.setAttribute('aria-label',`Abrir ${g.title}`);const art=document.createElement('span');art.className='tile-art';art.textContent=emojis[(g.index*3)%emojis.length];const t=document.createElement('span');t.className='tile-title';t.textContent=g.title;b.append(art,t);b.addEventListener('click',()=>openGame(g));return b;}
+ function render(reset=false){currentList=filtered();if(reset){shown=0;grid.innerHTML=''}const chunk=currentList.slice(shown,shown+batch);chunk.forEach((g,i)=>grid.appendChild(card(g,shown+i)));shown+=chunk.length;empty.hidden=currentList.length>0;more.hidden=currentList.length===0||shown>=currentList.length;}
+ function openGame(g){const u=new URL(location.href);u.searchParams.set('game',String(g.id));history.pushState({game:g.id},'',u);showGame(g)}
+ function showGame(g){home.hidden=true;play.hidden=false;title.textContent=g.title;frame.src=g.url;wrap.style.height='min(68vh, 690px)';document.title=`${g.title} — Open Game`;window.scrollTo({top:0,behavior:'instant'});}
+ function showHome(){frame.src='about:blank';play.hidden=true;home.hidden=false;document.title='Open Game — Juegos gratis';const u=new URL(location.href);u.searchParams.delete('game');history.replaceState({},'',u);}
+ function route(){const id=Number(new URLSearchParams(location.search).get('game'));const g=games.find(x=>x.id===id);if(g)showGame(g);else{home.hidden=false;play.hidden=true;render(true)}}
+ search.addEventListener('input',()=>{clear.hidden=!search.value;render(true)});clear.addEventListener('click',()=>{search.value='';clear.hidden=true;render(true);search.focus()});more.addEventListener('click',()=>{if(shown>=currentList.length){return}render(false)});document.querySelector('.back-link').addEventListener('click',e=>{e.preventDefault();showHome()});document.querySelector('.brand').addEventListener('click',e=>{e.preventDefault();showHome()});
+ let playerHeight=68;document.getElementById('bigger').addEventListener('click',()=>{playerHeight=Math.min(88,playerHeight+8);wrap.style.height=`${playerHeight}vh`});document.getElementById('smaller').addEventListener('click',()=>{playerHeight=Math.max(35,playerHeight-8);wrap.style.height=`${playerHeight}vh`});document.getElementById('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await (wrap.requestFullscreen?wrap.requestFullscreen():frame.requestFullscreen())}catch(e){/* El navegador o el juego puede bloquear pantalla completa. */}});window.addEventListener('popstate',route);render(true);route();
 })();
